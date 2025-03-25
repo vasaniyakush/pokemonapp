@@ -1,95 +1,75 @@
+"use client";
 import Image from "next/image";
 import styles from "./page.module.css";
 
+import { PokemonThumbnail } from "@/components/PokemonThumbnail";
+import { useEffect, useState } from "react";
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [allPokemons, setAllPokemons] = useState([]);
+  const [loadPoke, setLoadPoke] = useState({});
+  const getAllPokemons = async () => {
+    const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=20");
+    const data = await res.json();
+    // setLoadPoke(data.next)
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    function createPokemonObject(result) {
+      result.forEach(async (pokemon) => {
+        const res = await fetch(
+          `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`
+        );
+        const data = await res.json();
+        setAllPokemons((currentList) => [...currentList, data]);
+      });
+    }
+    console.log(data);
+    createPokemonObject(await data.results);
+    console.log("all", allPokemons);
+  };
+  useEffect(() => {
+    getAllPokemons();
+  }, []);
+
+  return (
+    <>
+      <div id="parent">
+        <div id="section">
+          <div className="content">
+            <h2>Pokemon KingDom</h2>
+          </div>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <div className="app-container">
+          <div className="pokemon-container">
+            <div className="all-container">
+              {allPokemons.map((pokemon, index) => (
+                <PokemonThumbnail
+                  id={pokemon.id}
+                  name={pokemon.name}
+                  image={pokemon.sprites.other.dream_world.front_default}
+                  type={pokemon.types[0].type.name}
+                  key={index}
+                  height={pokemon.height}
+                  weight={pokemon.weight}
+                  stat1={pokemon.stats[0].stat.name}
+                  stat2={pokemon.stats[1].stat.name}
+                  stat3={pokemon.stats[2].stat.name}
+                  stat4={pokemon.stats[3].stat.name}
+                  stat5={pokemon.stats[4].stat.name}
+                  stat6={pokemon.stats[5].stat.name}
+                  bs1={pokemon.stats[0].base_stat}
+                  bs2={pokemon.stats[1].base_stat}
+                  bs3={pokemon.stats[2].base_stat}
+                  bs4={pokemon.stats[3].base_stat}
+                  bs5={pokemon.stats[4].base_stat}
+                  bs6={pokemon.stats[5].base_stat}
+                />
+              ))}
+            </div>
+            <button className="load-more" onClick={() => getAllPokemons()}>
+              More Pokemons
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
